@@ -1,13 +1,14 @@
 resource "aws_instance" "web-1" {
-    ami = "ami-0ac80df6eff0e70b5"
-    availability_zone = "us-east-1a"
+    count = "${var.env== "prod" ? 3 : 1}"
+    ami = "${lookup(var.amis, var.aws_region)}"
+    availability_zone = "${element(var.azs, count.index)}"
     instance_type = "t2.micro"
     key_name = "avinash_laptop"
-    subnet_id = "${aws_subnet.subnet1-public.id}"
+    subnet_id = "${element(aws_subnet.subnets.*.id, count.index)}"
     vpc_security_group_ids = ["${aws_security_group.allow_all.id}"]
-    associate_public_ip_address = true	
+    associate_public_ip_address = true  
     tags = {
-        Name = "Server-1"
+        Name = "Server-${count.index+1}"
         Env = "uat"
         Owner = "Avinash"
         costcc = "8080"
